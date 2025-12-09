@@ -1,0 +1,77 @@
+	CREATE DATABASE Restaurant;
+	GO
+
+	USE Restaurant;
+	GO
+
+	CREATE TABLE Categories (
+		Id   INT IDENTITY(1,1) PRIMARY KEY,
+		Name NVARCHAR(100) NOT NULL
+	);
+
+	CREATE TABLE Meals (
+		Id         INT IDENTITY(1,1) PRIMARY KEY,
+		Name       NVARCHAR(100) NOT NULL,
+		CategoryId INT NULL
+			FOREIGN KEY REFERENCES Categories(Id)
+	);
+
+	INSERT INTO Categories (Name)
+	VALUES 
+		('Soup'),
+		('Salad'),
+		('Dessert'),
+		('Drink');
+
+	INSERT INTO Meals (Name, CategoryId)
+	VALUES
+		('Tomato Soup',   1),
+		('Chicken Soup',  1),
+		('Greek Salad',   2),
+		('Cheesecake',    3),
+		('Mixed Plate',   NULL),
+		('Mystery Dish',  NULL);
+
+	SELECT 
+		m.Id        AS MealId,
+		m.Name      AS MealName,
+		c.Id        AS CategoryId,
+		c.Name      AS CategoryName
+	FROM Meals m
+	INNER JOIN Categories c ON m.CategoryId = c.Id;
+
+	SELECT 
+		m.Id        AS MealId,
+		m.Name      AS MealName,
+		c.Id        AS CategoryId,
+		c.Name      AS CategoryName
+	FROM Meals m
+	LEFT JOIN Categories c ON m.CategoryId = c.Id;
+
+	SELECT
+		c.Id        AS CategoryId,
+		c.Name      AS CategoryName,
+		m.Id        AS MealId,
+		m.Name      AS MealName
+	FROM Categories c
+	LEFT JOIN Meals m ON m.CategoryId = c.Id;
+
+	SELECT *
+	FROM Meals
+	WHERE CategoryId IS NULL;
+
+	SELECT 
+		c.*
+	FROM Categories c
+	LEFT JOIN Meals m ON m.CategoryId = c.Id
+	WHERE m.Id IS NULL;
+
+	SELECT
+		m.Id   AS MealId,
+		m.Name AS MealName,
+		m.CategoryId,
+		c.Id   AS CategoryId,
+		c.Name AS CategoryName
+	FROM Meals m
+	FULL OUTER JOIN Categories c
+		ON m.CategoryId = c.Id;
