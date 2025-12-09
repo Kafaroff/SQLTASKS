@@ -1,0 +1,119 @@
+CREATE DATABASE BookStore;
+GO
+
+USE BookStore;
+GO
+
+CREATE TABLE book (
+    ID INT IDENTITY(1,1) PRIMARY KEY,
+    Title       VARCHAR(100) NOT NULL,
+    Author      VARCHAR(50)  NOT NULL,
+    Price       INT          NOT NULL 
+        CONSTRAINT DF_book_Price DEFAULT(0)
+        CONSTRAINT CK_book_Price CHECK (Price >= 0 AND Price <= 200),
+    PageCount   INT          NOT NULL
+        CONSTRAINT DF_book_PageCount DEFAULT(0)
+        CONSTRAINT CK_book_PageCount CHECK (PageCount >= 0),
+    Genre       VARCHAR(20)  NOT NULL
+        CONSTRAINT DF_book_Genre DEFAULT('Dram'),
+    ReleaseYear INT          NOT NULL
+);
+
+ALTER TABLE book
+ADD Language VARCHAR(30) NULL;
+
+ALTER TABLE book
+DROP COLUMN Language;
+
+
+INSERT INTO book (Title, Author, Price, PageCount, Genre, ReleaseYear)
+VALUES 
+('The Silent Forest',      'Alice Morgan',      25, 320, 'Fantasy', 2015),
+('Love in the Mist',       'Andrew Carter',     15, 210, 'Romance', 2008),
+('Dark Nights',            'Brian King',        30, 150, 'Horror',  2012),
+('History of Time',        'Carl Newton',       40, 500, 'Science', 1999),
+('Little Dreams',          'Anna White',        8,  95,  'Dram',    2005),
+('Future of AI',           'Alan Green',        20, 380, 'Science', 2021);
+
+UPDATE book
+SET Price = 35
+WHERE Title = 'The Silent Forest';
+
+
+DELETE FROM book
+WHERE Title = 'Little Dreams';
+
+SELECT * 
+FROM book;
+
+SELECT Title, Author
+FROM BOOK;
+
+SELECT *
+FROM BOOK
+WHERE Price>20;
+
+SELECT*
+FROM BOOK
+WHERE Genre='Fantasy';
+
+SELECT *
+FROM BOOK
+WHERE ReleaseYear<2010;
+
+SELECT *
+FROM book
+WHERE Price BETWEEN 10 AND 30;
+
+SELECT *
+FROM book
+WHERE PageCount < 100
+  AND Price > 15;
+
+SELECT *
+FROM book
+WHERE Author LIKE 'A%';
+
+SELECT *
+FROM book
+WHERE Title LIKE '%love%';   
+
+SELECT *
+FROM book
+WHERE Genre IN ('Fantasy', 'Horror');
+
+SELECT *
+FROM book
+WHERE ReleaseYear > 2000
+  AND PageCount > 300;
+
+
+SELECT *
+FROM book
+WHERE Price IN (10, 20, 30);
+
+SELECT *
+FROM book
+ORDER BY Price ASC;
+
+
+SELECT *
+FROM book
+ORDER BY PageCount DESC;
+
+
+SELECT MAX(Price) AS MaxPrice
+FROM book;
+
+
+SELECT MIN(PageCount) AS MinPageCount
+FROM book;
+
+
+SELECT COUNT(*) AS TotalBooks
+FROM book;
+
+
+SELECT AVG(Price) AS AveragePrice
+FROM book;
+
