@@ -1,0 +1,107 @@
+CREATE DATABASE LibraryDB;
+GO
+
+USE LibraryDB;
+GO
+
+CREATE TABLE Authors (
+    ID   INT IDENTITY(1,1) PRIMARY KEY,
+    Name NVARCHAR(200) NOT NULL
+);
+
+CREATE TABLE Categories (
+    ID   INT IDENTITY(1,1) PRIMARY KEY,
+    Name NVARCHAR(200) NOT NULL
+);
+
+CREATE TABLE Books (
+    ID         INT IDENTITY(1,1) PRIMARY KEY,
+    Name       NVARCHAR(200) NOT NULL,
+    AuthorId   INT NOT NULL,
+    CategoryId INT NOT NULL,
+    Price      DECIMAL(10,2) NOT NULL,
+    CONSTRAINT FK_Books_Authors   FOREIGN KEY (AuthorId)   REFERENCES Authors(ID),
+    CONSTRAINT FK_Books_Categories FOREIGN KEY (CategoryId) REFERENCES Categories(ID)
+);
+GO
+
+CREATE VIEW vwBookDetails
+AS
+SELECT 
+    b.ID        AS BookId,
+    b.Name      AS BookName,
+    a.Name      AS AuthorName,
+    c.Name      AS CategoryName,
+    b.Price
+FROM Books b
+JOIN Authors a   ON b.AuthorId   = a.ID
+JOIN Categories c ON b.CategoryId = c.ID;
+GO
+
+CREATE FUNCTION dbo.Capitalize(@input NVARCHAR(200))
+RETURNS NVARCHAR(200)
+AS
+BEGIN
+    IF @input IS NULL RETURN NULL;
+    SET @input = LTRIM(RTRIM(@input));
+    IF LEN(@input) = 0 RETURN @input;
+    DECLARE @result NVARCHAR(200);
+    IF LEN(@input) = 1
+        SET @result = UPPER(@input);
+    ELSE
+        SET @result = UPPER(LEFT(@input,1)) + LOWER(SUBSTRING(@input,2,LEN(@input)-1));
+    RETURN @result;
+END;
+GO
+
+CREATE PROCEDURE spAddBook
+    @Name       NVARCHAR(200),
+    @AuthorId   INT,
+    @CategoryId INT,
+    @Price      DECIMAL(10,2)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SET @Name = dbo.Capitalize(@Name);
+    INSERT INTO Books (Name, AuthorId, CategoryId, Price)
+    VALUES (@Name, @AuthorId, @CategoryId, @Price);
+END;
+GO
+
+CREATE FUNCTION dbo.GetBookWithAuthor(@BookId INT)
+RETURNS NVARCHAR(400)
+AS
+BEGIN
+    DECLARE @result NVARCHAR(400);
+    SELECT @result = b.Name + N' - ' + a.Name
+    FROM Books b
+    JOIN Authors a ON b.AuthorId = a.ID
+    WHERE b.ID = @BookId;
+    RETURN @result;
+END;
+GO
+
+CREATE PROCEDURE spIncreaseBookPrice
+    @BookId INT,
+    @PriceIncrease DECIMAL(10,2)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    UPDATE Books
+    SET Price = Price + @PriceIncrease
+    WHERE ID = @BookId;
+END;
+GO
+
+CREATE FUNCTION dbo.GetBookWithCategory(@BookId INT)
+RETURNS NVARCHAR(400)
+AS
+BEGIN
+    DECLARE @result NVARCHAR(400);
+    SELECT @result = b.Name + N' - ' + c.Name
+    FROM Books b
+    JOIN Categories c ON b.CategoryId = c.ID
+    WHERE b.ID = @BookId;
+    RETURN @result;
+END;
+GO
